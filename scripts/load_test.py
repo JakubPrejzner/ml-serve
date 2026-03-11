@@ -98,7 +98,8 @@ async def run_load_test(base_url: str, duration: int) -> None:
 
     # summary table
     print()
-    header = f"  {'Concurrency':>12} {'Requests':>10} {'Throughput':>12} {'Avg (ms)':>10} {'p99 (ms)':>10} {'Errors':>8}"
+    cols = ["Concurrency", "Requests", "Throughput", "Avg (ms)", "p99 (ms)", "Errors"]
+    header = f"  {cols[0]:>12} {cols[1]:>10} {cols[2]:>12} {cols[3]:>10} {cols[4]:>10} {cols[5]:>8}"
     print(header)
     print(f"  {'─' * 12} {'─' * 10} {'─' * 12} {'─' * 10} {'─' * 10} {'─' * 8}")
 

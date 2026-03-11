@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends
 
-from app.api.deps import get_inference_service, get_settings, verify_api_key, get_request_id
-from app.schemas.requests import PredictRequest, BatchPredictRequest
-from app.schemas.responses import PredictResponse, BatchPredictResponse
-from app.services.inference import InferenceService
+from app.api.deps import get_inference_service, get_request_id, get_settings, verify_api_key
 from app.config import Settings
-from app.middleware.metrics import INFERENCE_LATENCY, MODEL_PREDICTION_COUNT, BATCH_SIZE
+from app.middleware.metrics import BATCH_SIZE, INFERENCE_LATENCY, MODEL_PREDICTION_COUNT
+from app.schemas.requests import BatchPredictRequest, PredictRequest
+from app.schemas.responses import BatchPredictResponse, PredictResponse
+from app.services.inference import InferenceService
 
 router = APIRouter(tags=["inference"], dependencies=[Depends(verify_api_key)])
 
@@ -16,7 +16,7 @@ async def predict(
     request_id: str = Depends(get_request_id),
     svc: InferenceService = Depends(get_inference_service),
     settings: Settings = Depends(get_settings),
-):
+) -> PredictResponse:
     result, latency = svc.predict(body.text, settings.model_name)
 
     # track prometheus stuff
@@ -38,7 +38,7 @@ async def predict_batch(
     request_id: str = Depends(get_request_id),
     svc: InferenceService = Depends(get_inference_service),
     settings: Settings = Depends(get_settings),
-):
+) -> BatchPredictResponse:
     results, latency = svc.predict_batch(body.texts, settings.model_name)
 
     INFERENCE_LATENCY.labels(model=settings.model_name).observe(latency / 1000)

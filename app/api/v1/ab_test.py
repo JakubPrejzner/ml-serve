@@ -1,11 +1,13 @@
+from typing import Any
+
 from fastapi import APIRouter, Depends
 
-from app.api.deps import get_inference_service, get_settings, verify_api_key, get_request_id
+from app.api.deps import get_inference_service, get_request_id, get_settings, verify_api_key
+from app.config import Settings
 from app.schemas.requests import ABPredictRequest
 from app.schemas.responses import ABPredictResponse
-from app.services.inference import InferenceService
 from app.services.ab_testing import ab_service
-from app.config import Settings
+from app.services.inference import InferenceService
 
 router = APIRouter(tags=["ab-testing"], dependencies=[Depends(verify_api_key)])
 
@@ -16,7 +18,7 @@ async def ab_predict(
     request_id: str = Depends(get_request_id),
     svc: InferenceService = Depends(get_inference_service),
     settings: Settings = Depends(get_settings),
-):
+) -> ABPredictResponse:
     variant = ab_service.assign_variant(settings.ab_test_split)
 
     # TODO: variant B should eventually point to a challenger model
@@ -39,6 +41,6 @@ async def ab_predict(
 
 
 @router.get("/ab/results")
-async def ab_results():
+async def ab_results() -> dict[str, Any]:
     """Current A/B test metrics. No auth on this one — it's read-only stats."""
     return ab_service.get_results()

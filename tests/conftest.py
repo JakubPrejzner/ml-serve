@@ -3,15 +3,14 @@ Shared fixtures for the ml-serve test suite.
 Everything runs without Docker, Redis, or a real HuggingFace model.
 """
 
-import pytest
 import httpx
+import pytest
 
+from app.api.deps import get_inference_service, get_settings
 from app.config import Settings
-from app.services.inference import InferenceService
-from app.api.deps import get_settings, get_inference_service
 from app.models.registry import registry
 from app.services.ab_testing import ab_service
-
+from app.services.inference import InferenceService
 
 # ── helpers ──────────────────────────────────────────────────
 
@@ -32,7 +31,8 @@ class FakeModel:
 
     def predict(self, text: str) -> dict:
         # positive for anything containing "good" or "great", negative otherwise
-        label = "positive" if any(w in text.lower() for w in ("good", "great", "fantastic")) else "negative"
+        positive_words = ("good", "great", "fantastic")
+        label = "positive" if any(w in text.lower() for w in positive_words) else "negative"
         return {"label": label, "score": 0.9876}
 
     def predict_batch(self, texts: list[str]) -> list[dict]:

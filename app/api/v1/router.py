@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 
+from app.api.v1.ab_test import router as ab_router
 from app.api.v1.health import router as health_router
 from app.api.v1.predict import router as predict_router
-from app.api.v1.ab_test import router as ab_router
 
 v1_router = APIRouter(prefix="/v1")
 

@@ -1,9 +1,11 @@
-import time
 import threading
+import time
+from collections.abc import Awaitable, Callable
 
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, Response
+from starlette.types import ASGIApp
 
 from app.config import settings
 from app.middleware.metrics import RATE_LIMIT_HITS
@@ -14,13 +16,13 @@ class _TokenBucket:
 
     __slots__ = ("capacity", "tokens", "refill_rate", "last_refill")
 
-    def __init__(self, capacity: int, refill_rate: float):
+    def __init__(self, capacity: int, refill_rate: float) -> None:
         self.capacity = capacity
         self.tokens = float(capacity)
         self.refill_rate = refill_rate  # tokens/sec
         self.last_refill = time.monotonic()
 
-    def _refill(self):
+    def _refill(self) -> None:
         now = time.monotonic()
         elapsed = now - self.last_refill
         self.tokens = min(self.capacity, self.tokens + elapsed * self.refill_rate)
@@ -48,7 +50,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     Keys on X-API-Key if present, otherwise falls back to client IP.
     """
 
-    def __init__(self, app):
+    def __init__(self, app: ASGIApp) -> None:
         super().__init__(app)
         self._buckets: dict[str, _TokenBucket] = {}
         self._lock = threading.Lock()
@@ -70,7 +72,11 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 )
             return self._buckets[key]
 
-    async def dispatch(self, request: Request, call_next):
+    async def dispatch(
+        self,
+        request: Request,
+        call_next: Callable[[Request], Awaitable[Response]],
+    ) -> Response:
         # skip health checks and metrics
         path = request.url.path
         if "/health" in path or path == "/metrics":

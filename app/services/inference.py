@@ -1,5 +1,5 @@
-import time
 import logging
+import time
 
 from app.models.registry import registry
 from app.schemas.responses import PredictionResult

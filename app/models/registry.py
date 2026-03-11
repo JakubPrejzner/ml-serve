@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 class ModelRegistry:
     """Central place for registering and fetching ML models."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._registry: dict[str, type] = {}
         self._instances: dict[str, Any] = {}
 
@@ -21,7 +21,8 @@ class ModelRegistry:
             return self._instances[name]
 
         if name not in self._registry:
-            raise KeyError(f"Model '{name}' not found in registry. Available: {list(self._registry.keys())}")
+            available = list(self._registry.keys())
+            raise KeyError(f"Model '{name}' not found in registry. Available: {available}")
 
         # lazy init
         logger.info(f"Instantiating model: {name}")

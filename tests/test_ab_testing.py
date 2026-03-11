@@ -2,9 +2,8 @@
 Tests for A/B testing endpoints.
 """
 
-import pytest
 import httpx
-
+import pytest
 
 pytestmark = pytest.mark.anyio
 

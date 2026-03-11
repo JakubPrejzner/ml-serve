@@ -1,13 +1,15 @@
-import uuid
-import time
 import logging
+import time
+import uuid
+from collections.abc import Awaitable, Callable
 
 import structlog
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
+from starlette.responses import Response
 
 
-def configure_logging(log_level: str = "INFO"):
+def configure_logging(log_level: str = "INFO") -> None:
     """Wire up structlog with JSON output. Call once at startup."""
     structlog.configure(
         processors=[
@@ -38,7 +40,11 @@ logger = structlog.get_logger("ml_serve.access")
 
 
 class RequestLoggingMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
+    async def dispatch(
+        self,
+        request: Request,
+        call_next: Callable[[Request], Awaitable[Response]],
+    ) -> Response:
         request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
         request.state.request_id = request_id
 

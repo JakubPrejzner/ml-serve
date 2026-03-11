@@ -2,9 +2,8 @@
 Tests for health / readiness / liveness probes.
 """
 
-import pytest
 import httpx
-
+import pytest
 
 pytestmark = pytest.mark.anyio
 

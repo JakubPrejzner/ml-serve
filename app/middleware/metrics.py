@@ -1,16 +1,17 @@
 import time
+from collections.abc import Awaitable, Callable
 
 from fastapi import APIRouter
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
-from starlette.responses import Response
 from prometheus_client import (
+    CONTENT_TYPE_LATEST,
     Counter,
     Gauge,
     Histogram,
     generate_latest,
-    CONTENT_TYPE_LATEST,
 )
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import Response
 
 # ── counters ──────────────────────────────────────────────
 
@@ -63,8 +64,13 @@ ACTIVE_REQUESTS = Gauge(
 
 # ── middleware ────────────────────────────────────────────
 
+
 class MetricsMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
+    async def dispatch(
+        self,
+        request: Request,
+        call_next: Callable[[Request], Awaitable[Response]],
+    ) -> Response:
         # don't instrument the metrics endpoint itself
         if request.url.path == "/metrics":
             return await call_next(request)
@@ -100,6 +106,6 @@ metrics_router = APIRouter()
 
 
 @metrics_router.get("/metrics", include_in_schema=False)
-async def prometheus_metrics():
+async def prometheus_metrics() -> Response:
     body = generate_latest()
     return Response(content=body, media_type=CONTENT_TYPE_LATEST)

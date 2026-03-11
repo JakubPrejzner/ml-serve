@@ -2,9 +2,8 @@
 Tests for the /metrics Prometheus endpoint.
 """
 
-import pytest
 import httpx
-
+import pytest
 
 pytestmark = pytest.mark.anyio
 

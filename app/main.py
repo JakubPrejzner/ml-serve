@@ -1,30 +1,31 @@
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from typing import Any
 
 import structlog
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.config import settings
 from app.api.v1.router import v1_router
+from app.config import settings
 from app.middleware.logging import RequestLoggingMiddleware, configure_logging
 from app.middleware.metrics import MetricsMiddleware, metrics_router
 from app.middleware.rate_limit import RateLimitMiddleware
+from app.models import sentiment as _sentiment_init  # noqa: F401
 from app.services.inference import InferenceError, ModelNotFoundError
-
-# trigger model registration on import
-import app.models.sentiment  # noqa: F401
 
 logger = structlog.get_logger(__name__)
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     # ── startup ───────────────────────────────
     configure_logging(settings.log_level)
     logger.info("starting", app=settings.app_name, version=settings.app_version)
 
     from app.models.registry import registry
+
     model = registry.get(settings.model_name)
     model.warmup()
 
@@ -67,9 +68,12 @@ if settings.prometheus_enabled:
 
 # ── exception handlers ────────────────────────────────────
 
+
 @app.exception_handler(ModelNotFoundError)
-async def model_not_found_handler(request: Request, exc: ModelNotFoundError):
-    rid = getattr(request.state, "request_id", "")
+async def model_not_found_handler(
+    request: Request, exc: ModelNotFoundError
+) -> JSONResponse:
+    rid: Any = getattr(request.state, "request_id", "")
     return JSONResponse(
         status_code=404,
         content={"detail": str(exc), "request_id": rid},
@@ -77,8 +81,8 @@ async def model_not_found_handler(request: Request, exc: ModelNotFoundError):
 
 
 @app.exception_handler(InferenceError)
-async def inference_error_handler(request: Request, exc: InferenceError):
-    rid = getattr(request.state, "request_id", "")
+async def inference_error_handler(request: Request, exc: InferenceError) -> JSONResponse:
+    rid: Any = getattr(request.state, "request_id", "")
     return JSONResponse(
         status_code=500,
         content={"detail": str(exc), "request_id": rid},

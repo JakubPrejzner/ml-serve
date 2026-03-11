@@ -3,9 +3,8 @@ Tests for the /v1/predict and /v1/predict/batch endpoints.
 Verifies single prediction, batch, validation rules, etc.
 """
 
-import pytest
 import httpx
-
+import pytest
 
 pytestmark = pytest.mark.anyio
 

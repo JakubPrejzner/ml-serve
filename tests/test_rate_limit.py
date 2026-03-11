@@ -5,14 +5,13 @@ We override the module-level settings in the rate_limit module and rebuild
 the middleware stack to get fresh buckets with predictable capacity.
 """
 
-import pytest
 import httpx
+import pytest
 
-from app.api.deps import get_settings, get_inference_service
-from app.services.inference import InferenceService
+from app.api.deps import get_inference_service, get_settings
 from app.models.registry import registry
+from app.services.inference import InferenceService
 from tests.conftest import FakeModel, _test_settings
-
 
 pytestmark = pytest.mark.anyio
 

@@ -1,6 +1,7 @@
 import random
 import threading
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass
@@ -16,7 +17,7 @@ class ABTestingService:
     Thread-safe — uses a lock around stats mutations.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._lock = threading.Lock()
         self._stats: dict[str, _VariantStats] = {
             "A": _VariantStats(),
@@ -26,7 +27,7 @@ class ABTestingService:
     def assign_variant(self, split_ratio: float = 0.5) -> str:
         return "A" if random.random() < split_ratio else "B"
 
-    def track_result(self, variant: str, latency_ms: float, error: bool = False):
+    def track_result(self, variant: str, latency_ms: float, error: bool = False) -> None:
         with self._lock:
             stats = self._stats.setdefault(variant, _VariantStats())
             stats.count += 1
@@ -34,9 +35,9 @@ class ABTestingService:
             if error:
                 stats.error_count += 1
 
-    def get_results(self) -> dict:
+    def get_results(self) -> dict[str, Any]:
         with self._lock:
-            out = {}
+            out: dict[str, Any] = {}
             for variant, stats in self._stats.items():
                 avg = stats.total_latency_ms / stats.count if stats.count else 0.0
                 err_rate = stats.error_count / stats.count if stats.count else 0.0
@@ -48,7 +49,7 @@ class ABTestingService:
                 }
             return {"variants": out}
 
-    def reset(self):
+    def reset(self) -> None:
         """Mainly for tests."""
         with self._lock:
             self._stats = {"A": _VariantStats(), "B": _VariantStats()}
