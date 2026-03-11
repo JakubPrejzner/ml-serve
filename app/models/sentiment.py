@@ -34,10 +34,7 @@ class SentimentModel:
 
     def predict_batch(self, texts: list[str]) -> list[dict[str, Any]]:
         results = self.pipe(texts)
-        return [
-            {"label": r["label"].lower(), "score": round(r["score"], 4)}
-            for r in results
-        ]
+        return [{"label": r["label"].lower(), "score": round(r["score"], 4)} for r in results]
 
     def warmup(self) -> None:
         """Run a dummy prediction to warm up the pipeline / JIT."""

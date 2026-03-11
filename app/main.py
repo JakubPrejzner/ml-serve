@@ -70,9 +70,7 @@ if settings.prometheus_enabled:
 
 
 @app.exception_handler(ModelNotFoundError)
-async def model_not_found_handler(
-    request: Request, exc: ModelNotFoundError
-) -> JSONResponse:
+async def model_not_found_handler(request: Request, exc: ModelNotFoundError) -> JSONResponse:
     rid: Any = getattr(request.state, "request_id", "")
     return JSONResponse(
         status_code=404,

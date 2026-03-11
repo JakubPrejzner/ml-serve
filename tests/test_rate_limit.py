@@ -84,7 +84,7 @@ async def test_over_limit(_inject_model):
         # drain the bucket
         for i in range(3):
             resp = await client.post("/v1/predict", json={"text": "whatever"})
-            assert resp.status_code == 200, f"request {i+1} should pass"
+            assert resp.status_code == 200, f"request {i + 1} should pass"
 
         # this one should be rejected
         resp = await client.post("/v1/predict", json={"text": "one too many"})

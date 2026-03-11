@@ -37,9 +37,7 @@ async def worker(
             errors.append(0)
 
 
-async def run_level(
-    base_url: str, concurrency: int, duration: int
-) -> dict[str, float | int]:
+async def run_level(base_url: str, concurrency: int, duration: int) -> dict[str, float | int]:
     url = f"{base_url}/v1/predict"
     results: list[float] = []
     errors: list[int] = []

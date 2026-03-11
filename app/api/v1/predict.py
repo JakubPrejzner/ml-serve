@@ -21,9 +21,7 @@ async def predict(
 
     # track prometheus stuff
     INFERENCE_LATENCY.labels(model=settings.model_name).observe(latency / 1000)
-    MODEL_PREDICTION_COUNT.labels(
-        model=settings.model_name, predicted_class=result.label
-    ).inc()
+    MODEL_PREDICTION_COUNT.labels(model=settings.model_name, predicted_class=result.label).inc()
 
     return PredictResponse(
         result=result,
@@ -44,9 +42,7 @@ async def predict_batch(
     INFERENCE_LATENCY.labels(model=settings.model_name).observe(latency / 1000)
     BATCH_SIZE.observe(len(body.texts))
     for r in results:
-        MODEL_PREDICTION_COUNT.labels(
-            model=settings.model_name, predicted_class=r.label
-        ).inc()
+        MODEL_PREDICTION_COUNT.labels(model=settings.model_name, predicted_class=r.label).inc()
 
     return BatchPredictResponse(
         results=results,
