@@ -1,0 +1,54 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ml-serve"
+version = "0.1.0"
+description = "Production ML inference microservice"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [
+    { name = "Jakub Prejzner", email = "jakub@bitsharp.pl" },
+]
+dependencies = [
+    "fastapi>=0.115,<1",
+    "uvicorn[standard]>=0.32,<1",
+    "pydantic>=2.9,<3",
+    "pydantic-settings>=2.6,<3",
+    "structlog>=24.4,<25",
+    "prometheus-client>=0.21,<1",
+    "transformers>=4.46,<5",
+    "torch>=2.5,<3",
+    "redis>=5.2,<6",
+    "httpx>=0.27,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3,<9",
+    "pytest-asyncio>=0.24,<1",
+    "httpx>=0.27,<1",
+    "ruff>=0.8,<1",
+    "mypy>=1.13,<2",
+    "locust>=2.31,<3",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
