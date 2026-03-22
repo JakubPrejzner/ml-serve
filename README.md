@@ -165,3 +165,8 @@ make format
 ## License
 
 MIT -- see [LICENSE](LICENSE) for details.
+
+
+---
+
+Built by [BitSharp](https://bitsharp.pl) - AI solutions for Polish businesses.
